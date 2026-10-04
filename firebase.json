@@ -1,17 +1,43 @@
 {
-  "firestore": {"rules": "firestore.rules"},
+  "firestore": {
+    "rules": "firebase/firestore.rules"
+  },
   "hosting": {
-    "public": ".",
-    "ignore": ["firebase.json", "firestore.rules", ".*", "**/.*", "node_modules/**", "legacy/**", "tests/**", "scripts/**", "work/**", "outputs/**", "**/*.md", "package*.json", "*-debug.log", "**/*.test.js"],
+    "public": "dist",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "headers": [
-      {"source": "sw.js", "headers": [{"key": "Cache-Control", "value": "no-cache"}]},
-      {"source": "firebase-config.js", "headers": [{"key": "Cache-Control", "value": "no-cache"}]}
+      {
+        "source": "sw.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      },
+      {
+        "source": "index.html",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      }
     ]
   },
   "emulators": {
-    "auth": {"port": 9099, "host": "127.0.0.1"},
-    "firestore": {"port": 8081, "host": "127.0.0.1"},
-    "ui": {"enabled": false},
+    "auth": {
+      "port": 9099,
+      "host": "127.0.0.1"
+    },
+    "firestore": {
+      "port": 8081,
+      "host": "127.0.0.1"
+    },
+    "ui": {
+      "enabled": false
+    },
     "singleProjectMode": true
   }
 }
