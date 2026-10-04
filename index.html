@@ -1,1 +1,61 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#6155db"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Discipline"><link rel="icon" type="image/png" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="styles.css"><title>Job Discipline</title></head><body><div class="shell"><header><a class="brand" href="./">✦ Job Discipline</a><button id="cloudBadge" class="cloud-badge" data-state="local"><span class="status-dot" aria-hidden="true"></span><span id="storageStatus">Saved on this device</span></button></header><div class="intro"><span class="eyebrow"><span aria-hidden="true">✦</span> YOUR NEXT CHAPTER, ONE DAY AT A TIME</span><h1>A little progress.<br><span class="gradient-text">A brighter future.</span></h1><p>Build skills, find opportunities, and make room for yourself.</p></div><nav aria-label="Sections"><button data-view="today" class="active">Today</button><button data-view="pipeline">Pipeline</button><button data-view="history">Insights</button><button data-view="settings">Backup & install</button></nav><div class="datebar"><button id="prev" aria-label="Previous day">←</button><input type="date" id="date" aria-label="Selected day"><button id="next" aria-label="Next day">→</button><button id="today">Today</button></div><main id="main"></main><footer>Small steps count. Your progress belongs to you.</footer></div><div id="toast" role="status" aria-live="polite"></div><script type="module" src="app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#6155db" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Discipline" />
+    <link rel="icon" type="image/png" href="icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="./assets/styles.css" />
+    <title>Job Discipline</title>
+  </head>
+  <body>
+    <div class="shell">
+      <header>
+        <a class="brand" href="./">✦ Job Discipline</a
+        ><button id="cloudBadge" class="cloud-badge" data-state="local">
+          <span class="status-dot" aria-hidden="true"></span
+          ><span id="storageStatus">Saved on this device</span>
+        </button>
+      </header>
+      <div class="intro">
+        <span class="eyebrow"
+          ><span aria-hidden="true">✦</span> YOUR NEXT CHAPTER, ONE DAY AT A
+          TIME</span
+        >
+        <h1>
+          A little progress.<br /><span class="gradient-text"
+            >A brighter future.</span
+          >
+        </h1>
+        <p>Build skills, find opportunities, and make room for yourself.</p>
+      </div>
+      <nav aria-label="Sections">
+        <button data-view="today" class="active">Today</button
+        ><button data-view="pipeline">Pipeline</button
+        ><button data-view="history">Insights</button
+        ><button data-view="settings">Account & backup</button>
+      </nav>
+      <div class="datebar">
+        <button id="prev" aria-label="Previous day">←</button
+        ><input type="date" id="date" aria-label="Selected day" /><button
+          id="next"
+          aria-label="Next day"
+        >
+          →</button
+        ><button id="today">Today</button>
+      </div>
+      <main id="main"></main>
+      <footer>Small steps count. Your progress belongs to you.</footer>
+    </div>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="./assets/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,189 @@
+export const KEY = "job-discipline-v3";
+export const countries = ["India", "UAE", "Netherlands"];
+export const portals = {
+  India: ["Indeed", "Naukri", "LinkedIn", "Company career pages"],
+  UAE: [
+    "LinkedIn",
+    "Bayt.com",
+    "GulfTalent",
+    "Naukrigulf",
+    "Indeed UAE",
+    "Direct career pages",
+  ],
+  Netherlands: [
+    "LinkedIn",
+    "Indeed NL",
+    "IamExpat Jobs",
+    "Undutchables",
+    "StepStone NL",
+    "YoungCapital / NationaleVacaturebank",
+  ],
+};
+export const localDate = (d = new Date()) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+export function shift(key, n) {
+  let d = new Date(key + "T12:00:00");
+  d.setDate(d.getDate() + n);
+  return localDate(d);
+}
+export const blank = () => ({
+  tasks: {},
+  scans: {},
+  counts: {
+    India: 0,
+    UAE: 0,
+    Netherlands: 0,
+    networkCount: 0,
+    referrals: 0,
+    emails: 0,
+    leetcodeCount: 0,
+    technicalHours: 0,
+  },
+  legacyApplications: 0,
+  phoneMinutes: null,
+  phoneTarget: 45,
+  achievement: "",
+  improvement: "",
+  priority: "",
+  score: 0,
+  focusMinutes: 0,
+  focusEntries: {},
+});
+export const empty = () => ({
+  version: 3,
+  days: {},
+  applications: [],
+  contacts: [],
+  timer: null,
+});
+export function progress(day, taskIds) {
+  if (!day) return 0;
+  const done = taskIds.filter((t) => day.tasks[t]).length;
+  const apps = countries.reduce(
+    (s, c) => s + day.counts[c],
+    day.legacyApplications || 0,
+  );
+  const outreach = ["networkCount", "referrals", "emails"].reduce(
+    (s, c) => s + day.counts[c],
+    0,
+  );
+  return Math.round(
+    (60 * done) / taskIds.length +
+      10 * Math.min(apps / 6, 1) +
+      10 * Math.min(outreach / 5, 1) +
+      10 * Math.min(day.counts.leetcodeCount, 1) +
+      10 * Math.min(day.counts.technicalHours / 2, 1),
+  );
+}
+export function streak(db, today, ids) {
+  let k = progress(db.days[today], ids) >= 80 ? today : shift(today, -1),
+    n = 0;
+  while (progress(db.days[k], ids) >= 80) {
+    n++;
+    k = shift(k, -1);
+  }
+  return n;
+}
+export function validate(raw) {
+  if (
+    !raw ||
+    raw.version !== 3 ||
+    !raw.days ||
+    typeof raw.days !== "object" ||
+    Array.isArray(raw.days) ||
+    !Array.isArray(raw.applications) ||
+    !Array.isArray(raw.contacts)
+  )
+    throw Error("This is not a Job Discipline v3 backup.");
+  const num = (v) =>
+    typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= 100000;
+  for (const [date, d] of Object.entries(raw.days)) {
+    if (
+      !/^\d{4}-\d{2}-\d{2}$/.test(date) ||
+      localDate(new Date(date + "T12:00:00")) !== date ||
+      !d ||
+      !d.tasks ||
+      !d.scans ||
+      !d.counts
+    )
+      throw Error("Invalid daily record.");
+    for (const v of Object.values(d.tasks))
+      if (typeof v !== "boolean") throw Error("Invalid task.");
+    for (const v of Object.values(d.scans))
+      if (typeof v !== "boolean") throw Error("Invalid scan.");
+    for (const k of [
+      ...countries,
+      "networkCount",
+      "referrals",
+      "emails",
+      "leetcodeCount",
+      "technicalHours",
+    ])
+      if (!num(d.counts[k])) throw Error("Invalid counter.");
+    for (const k of ["achievement", "improvement", "priority"])
+      if (typeof d[k] !== "string") throw Error("Invalid reflection.");
+    if (
+      !num(d.phoneTarget) ||
+      !(d.phoneMinutes === null || num(d.phoneMinutes)) ||
+      !num(d.score) ||
+      d.score > 10 ||
+      !num(d.focusMinutes) ||
+      !num(d.legacyApplications)
+    )
+      throw Error("Invalid daily values.");
+  }
+  for (const d of Object.values(raw.days))
+    if (
+      d.focusEntries &&
+      (!d.focusEntries ||
+        typeof d.focusEntries !== "object" ||
+        Array.isArray(d.focusEntries) ||
+        Object.values(d.focusEntries).some((v) => !num(v)))
+    )
+      throw Error("Invalid focus session.");
+  for (const a of raw.applications)
+    if (
+      !a ||
+      typeof a.id !== "string" ||
+      typeof a.company !== "string" ||
+      typeof a.role !== "string" ||
+      !countries.includes(a.country) ||
+      !["Applied", "Interview", "Rejected", "Offer"].includes(a.stage) ||
+      typeof a.date !== "string" ||
+      typeof a.notes !== "string"
+    )
+      throw Error("Invalid application.");
+  for (const c of raw.contacts)
+    if (
+      !c ||
+      typeof c.id !== "string" ||
+      typeof c.name !== "string" ||
+      typeof c.notes !== "string" ||
+      typeof c.date !== "string" ||
+      typeof c.followup !== "string" ||
+      !["Connection", "Referral", "Cold email"].includes(c.type) ||
+      !["Sent", "Replied", "Follow up", "Closed"].includes(c.status)
+    )
+      throw Error("Invalid contact.");
+  return { ...raw, timer: null };
+}
+export function migrate(storage) {
+  const db = empty();
+  for (let i = 0; i < storage.length; i++) {
+    const key = storage.key(i);
+    if (/^discipline_\d{4}-\d{2}-\d{2}$/.test(key)) {
+      try {
+        const v = JSON.parse(storage.getItem(key)),
+          d = blank();
+        d.tasks = v.tasks || {};
+        for (const k of ["networkCount", "leetcodeCount", "technicalHours"])
+          d.counts[k] = Number(v[k]) || 0;
+        d.legacyApplications = Number(v.applications) || 0;
+        for (const k of ["achievement", "improvement", "priority", "score"])
+          if (v[k] !== undefined) d[k] = v[k];
+        db.days[key.slice(11)] = d;
+      } catch {}
+    }
+  }
+  return db;
+}
